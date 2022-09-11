@@ -17,12 +17,12 @@ internal class Program
 
 	private static async Task PrintNotifications(TrelloAuthorization[] auths)
 	{
-		TrelloAuthorization.Default.AppKey = auths[0].AppKey;
-		TrelloAuthorization.Default.UserToken = auths[0].UserToken;
+		// TrelloAuthorization.Default.AppKey = auths[0].AppKey;
+		// TrelloAuthorization.Default.UserToken = auths[0].UserToken;
 		List<TrelloLocalNotification> members = new ();
 		foreach (var auth in auths)
 		{
-			var m = await Trello.Me();
+			var m = await Trello.Me(auth);
 			if(m is null) continue;
 			members.Add(new TrelloLocalNotification(m, auth));
 			m.Notifications.ReadFilter(NotificationFilter.UneadFilter.unread);
@@ -30,11 +30,11 @@ internal class Program
 		}
 		while (true)
 		{
-			Thread.Sleep(2000);
 			foreach (var m in members)
 			{
 				await m.Update();
 			}
+			Thread.Sleep(2000);
 		}
 	}
 }

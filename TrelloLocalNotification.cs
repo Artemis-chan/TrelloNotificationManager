@@ -1,11 +1,12 @@
-﻿using Manatee.Trello;
+﻿using System.Text;
+using Manatee.Trello;
 using Newtonsoft.Json;
 
 public class TrelloLocalNotification
 {
-    private IMe _member;
-    private string _creatorNameEndpoint;
-    private List<int> _shownUnreadNotifications = new ();
+    private readonly IMe _member;
+    private readonly string _creatorNameEndpoint;
+    private readonly List<int> _shownUnreadNotifications = new ();
 
     public TrelloLocalNotification(IMe member, TrelloAuthorization auth)
     {
@@ -24,25 +25,31 @@ public class TrelloLocalNotification
             await Print(notif);
             _shownUnreadNotifications.Add(idHash);
         }
-        
-        
-        // foreach (var n in _shownUnreadNotifications)
-        // {
-        //     if (_member.Notifications.Any(_.Id.GetHashCode() == n))
-        //     {
-        //         _shownUnreadNotifications.Remove(n);
-        //     }
-        // }
+        CleanShownList();
+    }
+
+    private void CleanShownList()
+    {
+        if(!_shownUnreadNotifications.Any()) return;
+        var _toRemove = _shownUnreadNotifications.Where(n => _member.Notifications.All(_ => _.Id.GetHashCode() != n)).ToArray();
+        foreach (var n in _toRemove)
+        {
+            _shownUnreadNotifications.Remove(n);
+        }
     }
 
     private async Task Print(INotification notification)
     {
-        var s = notification.ToString();
+        var sb = new StringBuilder();
+        sb.Append($"{_member.FullName} : {notification.Data?.Board?.Name}\n");
         if(notification.Creator is null)
         {
-            s = await GetCreatorName(notification) + s;
+            sb.Append(await GetCreatorName(notification));
         }
-        Console.WriteLine(s);
+        sb.Append(notification);
+        Console.WriteLine(sb);
+        //play sound
+        //show notification
     }
     
     private async Task<string> GetCreatorName(INotification notification)
@@ -54,9 +61,9 @@ public class TrelloLocalNotification
         return JsonConvert.DeserializeObject<UserName>(content);
     }
 
-    [Serializable]
     private struct UserName
     {
+        [JsonProperty]
         public string _value;
         
         public static implicit operator string(UserName name) => name._value;
