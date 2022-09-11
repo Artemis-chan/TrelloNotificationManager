@@ -12,7 +12,6 @@ internal class Program
 		if(!File.Exists(AuthFile))
 		{
 			CreateAuthFile();
-
 			return;
 		}
 		
