@@ -11,22 +11,27 @@ internal class Program
 	{
 		if(!File.Exists(AuthFile))
 		{
-			Console.WriteLine("No auth file found");
-			File.AppendAllText(AuthFile, JsonConvert.SerializeObject(new []{ new TrelloAuthorization() }, Formatting.Indented));
-			new Process
-			{
-				StartInfo = new ProcessStartInfo(AuthFile)
-				{
-					UseShellExecute = true
-				}
-			}.Start();
-			
+			CreateAuthFile();
+
 			return;
 		}
 		
 		var auths = JsonConvert.DeserializeObject<TrelloAuthorization[]>(File.ReadAllText(AuthFile));
 		if(auths is null) return;
 		PrintNotifications(auths).Wait();
+	}
+
+	private static void CreateAuthFile()
+	{
+		Console.WriteLine("No auth file found");
+		File.AppendAllText(AuthFile, JsonConvert.SerializeObject(new[] { new TrelloAuthorization() }, Formatting.Indented));
+		new Process
+		{
+			StartInfo = new ProcessStartInfo(AuthFile)
+			{
+				UseShellExecute = true
+			}
+		}.Start();
 	}
 
 	private static async Task PrintNotifications(TrelloAuthorization[] auths)
