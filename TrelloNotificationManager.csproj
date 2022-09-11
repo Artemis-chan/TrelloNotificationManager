@@ -8,8 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ManagedBass" Version="3.1.1" />
     <PackageReference Include="Manatee.Trello" Version="4.4.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="Resources\**\*" CopyToOutputDirectory="Always" />
+    <Content Include="bass.dll" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
 </Project>

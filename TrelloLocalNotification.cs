@@ -48,7 +48,7 @@ public class TrelloLocalNotification
         }
         sb.Append(notification);
         Console.WriteLine(sb);
-        //play sound
+        Program.PlayNotificationSound();
         //show notification
     }
     
@@ -65,7 +65,6 @@ public class TrelloLocalNotification
     {
         [JsonProperty]
         public string _value;
-        
         public static implicit operator string(UserName name) => name._value;
     }
 }

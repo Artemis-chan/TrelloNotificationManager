@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using ManagedBass;
 using Manatee.Trello;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -6,7 +7,12 @@ using Newtonsoft.Json.Linq;
 internal class Program
 {
 	const string AuthFile = @"members.json";
+	const string NotificationFile = @"Resources\Pickup_coin_27.mp3";
 	static readonly TrelloFactory Trello = new ();
+	
+	private static int _stream;
+	private static bool _running = true;
+
 	private static void Main(string[] args)
 	{
 		if(!File.Exists(AuthFile))
@@ -14,10 +20,37 @@ internal class Program
 			CreateAuthFile();
 			return;
 		}
+
+		//Init Bass
+		if (!Bass.Init())
+		{
+			Console.WriteLine("Could not init audio");
+			return;
+		}
+		_stream = Bass.CreateStream(NotificationFile);
+		if (_stream == 0)
+		{
+			Console.WriteLine("Could not sound");
+			return;
+		}
+
+		//Handle exit
+		Console.CancelKeyPress += (s, e) =>
+		{
+			Console.WriteLine("Closing...");
+			_running = false;
+			Bass.StreamFree(_stream);
+			Bass.Free();
+		};
 		
 		var auths = JsonConvert.DeserializeObject<TrelloAuthorization[]>(File.ReadAllText(AuthFile));
 		if(auths is null) return;
 		PrintNotifications(auths).Wait();
+	}
+
+	public static void PlayNotificationSound()
+	{
+		Bass.ChannelPlay(_stream);
 	}
 
 	private static void CreateAuthFile()
@@ -46,7 +79,7 @@ internal class Program
 			m.Notifications.ReadFilter(NotificationFilter.UneadFilter.unread);
 			// var n = Trello.Notification(m.Notifications[0].Id, auth);
 		}
-		while (true)
+		while (_running)
 		{
 			foreach (var m in members)
 			{
