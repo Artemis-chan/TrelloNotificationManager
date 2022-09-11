@@ -76,7 +76,7 @@ internal class Program
 			var m = await Trello.Me(auth);
 			if(m is null) continue;
 			members.Add(new TrelloLocalNotification(m, auth));
-			m.Notifications.ReadFilter(NotificationFilter.UneadFilter.unread);
+			m.Notifications.ReadFilter(NotificationExtensions.UneadFilter.unread);
 			// var n = Trello.Notification(m.Notifications[0].Id, auth);
 		}
 		while (_running)

@@ -41,7 +41,8 @@ public class TrelloLocalNotification
     private async Task Print(INotification notification)
     {
         var sb = new StringBuilder();
-        sb.Append($"{_member.FullName} : {notification.Data?.Board?.Name}\n");
+        var data = notification.Data;
+        sb.Append($"{_member.FullName} : {data?.Board?.Name}\n");
         if(notification.Creator is null)
         {
             sb.Append(await GetCreatorName(notification));
@@ -49,7 +50,10 @@ public class TrelloLocalNotification
         sb.Append(notification);
         Console.WriteLine(sb);
         Program.PlayNotificationSound();
+        
         //show notification
+        if(data is null) return;
+        Console.WriteLine(data.GetLink());
     }
     
     private async Task<string> GetCreatorName(INotification notification)

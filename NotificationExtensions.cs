@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Manatee.Trello;
 
-public static class NotificationFilter
+public static class NotificationExtensions
 {
     public enum UneadFilter
     {
@@ -16,6 +16,10 @@ public static class NotificationFilter
         if(prop?.GetValue(col) is not Dictionary<string, object> additionalParams) return;
         additionalParams["read_filter"] = filter.ToString();
     }
+    
+    public static string? GetLink(this INotificationData notification) => notification.Card?.GetLink() ?? notification.Board?.GetLink();
+    public static string? GetLink(this IBoard board) => board.ShortLink is null ? null : $"https://trello.com/b/{board.ShortLink}";
+    public static string? GetLink(this ICard card) => card.ShortUrl;
     
     // public static void ReadAdditonalParams(this IReadOnlyNotificationCollection col)
     // {
