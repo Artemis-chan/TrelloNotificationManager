@@ -1,16 +1,30 @@
-﻿using Manatee.Trello;
+﻿using System.Diagnostics;
+using Manatee.Trello;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 internal class Program
 {
-	const string AuthFile = @"Z:\Documents\programmin\cs\TrelloNotificationManager\members.json";
+	const string AuthFile = @"members.json";
 	static readonly TrelloFactory Trello = new ();
 	private static void Main(string[] args)
 	{
+		if(!File.Exists(AuthFile))
+		{
+			Console.WriteLine("No auth file found");
+			File.AppendAllText(AuthFile, JsonConvert.SerializeObject(new []{ new TrelloAuthorization() }, Formatting.Indented));
+			new Process
+			{
+				StartInfo = new ProcessStartInfo(AuthFile)
+				{
+					UseShellExecute = true
+				}
+			}.Start();
+			
+			return;
+		}
+		
 		var auths = JsonConvert.DeserializeObject<TrelloAuthorization[]>(File.ReadAllText(AuthFile));
-		// var notifs = new SearchQuery().Member()
-		// Console.WriteLine("Hello, World!");
 		if(auths is null) return;
 		PrintNotifications(auths).Wait();
 	}
