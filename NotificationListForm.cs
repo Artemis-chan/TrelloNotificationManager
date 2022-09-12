@@ -24,11 +24,11 @@ public class NotificationListForm : Form
         }
     }
 
-    public void ShowNotification(string title, string message)
+    public void ShowNotification(string title, string message, string? link = null)
     {
         if(_notifications.TryDequeue(out var notif))
         {
-            notif.Show(title, message, this);
+            notif.Show(title, message, this, link);
             return;
         }
         

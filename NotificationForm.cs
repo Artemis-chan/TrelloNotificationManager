@@ -1,50 +1,93 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Reflection;
 using System.Timers;
 using Modern.Forms;
+using SkiaSharp;
+using ContentAlignment = Modern.Forms.ContentAlignment;
 using Timer = System.Timers.Timer;
 
 public class NotificationForm : Form
 {
     protected override Size DefaultSize => new (300, 100);
     
-    private Timer _timer;
+    public Action<NotificationForm>? Hidden; 
 
-    public Action<NotificationForm> Hidden; 
+    private readonly Label _label1;
+    private readonly Label _label2;
+    private readonly Control _clickCheck;
+    private readonly int _delay;
+    private readonly int _duration;
+    private readonly Point _startPosition;
 
-    private Label _label1;
-    private Label _label2;
-    private int _delay;
-    private int _duration;
-    private Point _startPosition;
-    public NotificationForm(int yPos, int delay = 2000, int animationDuration = 1000)
+    private string? _link = "";
+    
+    public NotificationForm(int yPos, int delay = 5000, int animationDuration = 1000)
     {
         StartPosition = FormStartPosition.Manual;
         _startPosition = new Point(0, yPos * Size.Height);
         Location = _startPosition;
-        TitleBar.Size = new Size(0, 0);
-        _label1 = Controls.Add(new Label { Location = new Point(10, 40) });
-        _label2 = Controls.Add(new Label { Location = new Point(10, 70) });
+        TitleBar.Visible = false;
         Resizeable = false;
-        var w = typeof(Form).GetField("window", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(this);
-        w.GetType().GetMethod("SetTopmost", BindingFlags.Instance | BindingFlags.Public).Invoke(w, new object[] { true });
+        // TitleBar.Size = new Size(0, 0);
+        
+        var width = Size.Width - 10;
+        var heightA = Size.Height / 3;
+        _label1 = Controls.Add(new Label
+        {
+            Location = new Point(5, 5),
+            Height = heightA - 5,
+            Width = width,
+            Multiline = true,
+            TextAlign = ContentAlignment.TopLeft,
+        });
+        _label2 = Controls.Add(new Label
+        {
+            Location = new Point(5, _label1.Height + 10),
+            Height = heightA * 2 - 10,
+            Width = width,
+            Multiline = true,
+            TextAlign = ContentAlignment.TopLeft,
+        });
+
+        _clickCheck = Controls.Add(new Control()
+        {
+            Width = Size.Width,
+            Height = Size.Height,
+            Location = Point.Empty,
+        });
+        _clickCheck.Style.BackgroundColor = SKColors.Transparent;
+        _clickCheck.Click += ClickCheckOnClick;
+        
+        // _label1.Style.BackgroundColor = SKColor.FromHsv(100, 100, 100);
+        // _label2.Style.BackgroundColor = SKColor.FromHsv(100, 100, 100);
+        
+        var w = typeof(Form).GetField("window", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
+        w?.GetType().GetMethod("SetTopmost", BindingFlags.Instance | BindingFlags.Public)?.Invoke(w, new object[] { true });
         
         // SetTopMost(true);
-        this.
-        
-        UseSystemDecorations = false;
 
         _delay = delay;
         _duration = animationDuration;
-
-        // new Thread(AnimateThread).Start(animationDuration);
-        // Animate(_delay, _duration);
     }
 
-    public void Show(string head, string body, Form parent)
+    private void ClickCheckOnClick(object? sender, MouseEventArgs e)
+    {
+        Console.WriteLine("clicked");
+        if(string.IsNullOrWhiteSpace(_link)) return;
+        Process.Start(new ProcessStartInfo(_link)
+        {
+            UseShellExecute = true,
+        });
+        Hide();
+        Hidden?.Invoke(this);
+    }
+
+    public void Show(string head, string body, Form parent, string? link = null)
     {
         _label1.Text = head;
         _label2.Text = body;
+        _link = link;
         ShowDialog(parent);
         Invalidate();
         Program.PlayNotificationSound();
@@ -57,13 +100,11 @@ public class NotificationForm : Form
         Location = _startPosition;
         await Task.Delay(delay);
         var spd = duration / -Size.Width * INTERVAL;
-        _timer = new Timer(INTERVAL);
-        _timer.Elapsed += (sender, args) =>
-        {
-            Translate(new (spd, 0));
-        };
+        var _timer = new Timer(INTERVAL);
+        _timer.Elapsed += (_, _) => Location = Location with { X = Location.X + spd };
         _timer.Enabled = true;
         _timer.Start();
+        
         await Task.Delay(duration);
         _timer.Stop();
 
@@ -73,26 +114,5 @@ public class NotificationForm : Form
         // Close();
    }
     
-    private void SetTimer(double delay)
-    {
-        // Create a timer with a two second interval.
-        _timer = new Timer(delay);
-        // Hook up the Elapsed event for the timer. 
-        _timer.Elapsed += TimerOnElapsed;
-        _timer.AutoReset = true;
-        _timer.Enabled = true; 
-        _timer.Start();
-    }
-
-    private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
-    {
-        Translate(new (1, 0));
-    }
-
-    private void Translate(Point delta)
-    {
-        Location = new Point(Location.X + delta.X, Location.Y + delta.Y);
-    }
-
-    private int timePassed;
+    
 }

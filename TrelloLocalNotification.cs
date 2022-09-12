@@ -40,22 +40,24 @@ public class TrelloLocalNotification
 
     private async Task Print(INotification notification)
     {
-        var sb = new StringBuilder();
         var data = notification.Data;
-        sb.Append($"{_member.FullName} : {data?.Board?.Name}\n");
+        var title = $"{_member.FullName} : {data?.Board?.Name}";
+        Console.WriteLine(title);
+        
+        var sb = new StringBuilder();
         if(notification.Creator is null)
         {
             sb.Append(await GetCreatorName(notification));
         }
         sb.Append(notification);
-        var m = sb.ToString();
-        Console.WriteLine(m);
+        var body = sb.ToString();
+        Console.WriteLine(body);
         
         //show notification
         var link = data?.GetLink();
+        Program.NotificationList.ShowNotification(title, body, link);
         if(link is null) return;
         Console.WriteLine(link);
-        Program.NotificationList.ShowNotification(m, link);
     }
     
     private async Task<string> GetCreatorName(INotification notification)
@@ -71,6 +73,9 @@ public class TrelloLocalNotification
     {
         [JsonProperty]
         public string _value;
+
+        public UserName() => _value = string.Empty;
+
         public static implicit operator string(UserName name) => name._value;
     }
 }
