@@ -6,13 +6,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TrelloNotificationManager;
 
-internal class Program
+internal sealed class Program
 {
 	const string AuthFile = @"members.json";
 	const string NotificationFile = @"Resources\Pickup_coin_27.mp3";
 	static readonly TrelloFactory Trello = new ();
 
-	public static NotificationListForm NotificationList;
+	public static NotificationListForm NotificationList = null!;
 	
 	private static int _stream;
 	private static bool _running = true;
@@ -52,7 +52,7 @@ internal class Program
 		var auths = JsonConvert.DeserializeObject<TrelloAuthorization[]>(File.ReadAllText(AuthFile));
 		if(auths is null) return;
 		NotificationList = new NotificationListForm();
-		PrintNotifications(auths);
+		Task.Run(() => PrintNotifications(auths));
 		Application.Run(NotificationList);
 	}
 
