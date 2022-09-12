@@ -48,12 +48,14 @@ public class TrelloLocalNotification
             sb.Append(await GetCreatorName(notification));
         }
         sb.Append(notification);
-        Console.WriteLine(sb);
-        Program.PlayNotificationSound();
+        var m = sb.ToString();
+        Console.WriteLine(m);
         
         //show notification
-        if(data is null) return;
-        Console.WriteLine(data.GetLink());
+        var link = data?.GetLink();
+        if(link is null) return;
+        Console.WriteLine(link);
+        Program.NotificationList.ShowNotification(m, link);
     }
     
     private async Task<string> GetCreatorName(INotification notification)

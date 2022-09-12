@@ -1,18 +1,23 @@
 ﻿using System.Diagnostics;
 using ManagedBass;
 using Manatee.Trello;
+using Modern.Forms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TrelloNotificationManager;
 
 internal class Program
 {
 	const string AuthFile = @"members.json";
 	const string NotificationFile = @"Resources\Pickup_coin_27.mp3";
 	static readonly TrelloFactory Trello = new ();
+
+	public static NotificationListForm NotificationList;
 	
 	private static int _stream;
 	private static bool _running = true;
 
+	[STAThread]
 	private static void Main(string[] args)
 	{
 		if(!File.Exists(AuthFile))
@@ -20,6 +25,7 @@ internal class Program
 			CreateAuthFile();
 			return;
 		}
+		
 
 		//Init Bass
 		if (!Bass.Init())
@@ -45,7 +51,9 @@ internal class Program
 		
 		var auths = JsonConvert.DeserializeObject<TrelloAuthorization[]>(File.ReadAllText(AuthFile));
 		if(auths is null) return;
-		PrintNotifications(auths).Wait();
+		NotificationList = new NotificationListForm();
+		PrintNotifications(auths);
+		Application.Run(NotificationList);
 	}
 
 	public static void PlayNotificationSound()
@@ -79,6 +87,7 @@ internal class Program
 			m.Notifications.ReadFilter(NotificationExtensions.UneadFilter.unread);
 			// var n = Trello.Notification(m.Notifications[0].Id, auth);
 		}
+		NotificationList.Hide();
 		while (_running)
 		{
 			foreach (var m in members)
