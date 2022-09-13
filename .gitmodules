@@ -1,0 +1,3 @@
+[submodule "Deps/Modern.Forms"]
+	path = Deps/Modern.Forms
+	url = https://github.com/Artemis-chan/Modern.Forms

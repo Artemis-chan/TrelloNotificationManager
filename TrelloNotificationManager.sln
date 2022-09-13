@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrelloNotificationManager", "TrelloNotificationManager\TrelloNotificationManager.csproj", "{3DDCE406-719B-437B-8C7E-BB5FF2BD8C81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modern.Forms", "Deps\Modern.Forms\src\Modern.Forms\Modern.Forms.csproj", "{4DDB5FE9-D529-4E7D-AE8E-D2E0E716EC63}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3DDCE406-719B-437B-8C7E-BB5FF2BD8C81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DDCE406-719B-437B-8C7E-BB5FF2BD8C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DDCE406-719B-437B-8C7E-BB5FF2BD8C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DDCE406-719B-437B-8C7E-BB5FF2BD8C81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DDB5FE9-D529-4E7D-AE8E-D2E0E716EC63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DDB5FE9-D529-4E7D-AE8E-D2E0E716EC63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DDB5FE9-D529-4E7D-AE8E-D2E0E716EC63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DDB5FE9-D529-4E7D-AE8E-D2E0E716EC63}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

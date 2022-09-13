@@ -87,7 +87,7 @@ internal sealed class Program
 			m.Notifications.ReadFilter(NotificationExtensions.UneadFilter.unread);
 			// var n = Trello.Notification(m.Notifications[0].Id, auth);
 		}
-		NotificationList.Hide();
+		// NotificationList.Hide();
 		while (_running)
 		{
 			foreach (var m in members)

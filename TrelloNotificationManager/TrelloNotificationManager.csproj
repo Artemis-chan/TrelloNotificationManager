@@ -11,7 +11,10 @@
     <PackageReference Include="ManagedBass" Version="3.1.1" />
     <PackageReference Include="Manatee.Trello" Version="4.4.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Modern.Forms" Version="0.2.0" />
+<!--    <PackageReference Include="Modern.Forms" Version="0.2.0" />-->
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Deps\Modern.Forms\src\Modern.Forms\Modern.Forms.csproj" />
   </ItemGroup>
   
   <ItemGroup>

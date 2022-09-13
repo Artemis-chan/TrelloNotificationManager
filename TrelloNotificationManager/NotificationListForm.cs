@@ -28,7 +28,7 @@ public class NotificationListForm : Form
     {
         if(_notifications.TryDequeue(out var notif))
         {
-            notif.Show(title, message, this, link);
+            notif.Show(title, message, link);
             return;
         }
         
@@ -49,7 +49,7 @@ public class NotificationListForm : Form
     {
         if (_notificationQueue.TryDequeue(out var next))
         {
-            sender.Show(next.Item1, next.Item2, this);
+            sender.Show(next.Item1, next.Item2);
             return;
         }
         _notifications.Enqueue(sender);

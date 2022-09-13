@@ -1,5 +1,5 @@
-/obj
-/bin
-/.idea
-/.vscode
+**/obj
+**/bin
+**/.idea
+**/.vscode
 members.json

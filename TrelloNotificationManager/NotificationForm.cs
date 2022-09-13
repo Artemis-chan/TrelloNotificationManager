@@ -62,10 +62,11 @@ public class NotificationForm : Form
         // _label1.Style.BackgroundColor = SKColor.FromHsv(100, 100, 100);
         // _label2.Style.BackgroundColor = SKColor.FromHsv(100, 100, 100);
         
-        var w = typeof(Form).GetField("window", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
-        w?.GetType().GetMethod("SetTopmost", BindingFlags.Instance | BindingFlags.Public)?.Invoke(w, new object[] { true });
+        // var w = typeof(Form).GetField("window", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
+        // w?.GetType().GetMethod("SetTopmost", BindingFlags.Instance | BindingFlags.Public)?.Invoke(w, new object[] { true });
         
-        // SetTopMost(true);
+        SetTopmost(true);
+        ShowTaskbarIcon(false);
 
         _delay = delay;
         _duration = animationDuration;
@@ -73,22 +74,32 @@ public class NotificationForm : Form
 
     private void ClickCheckOnClick(object? sender, MouseEventArgs e)
     {
-        Console.WriteLine("clicked");
-        if(string.IsNullOrWhiteSpace(_link)) return;
-        Process.Start(new ProcessStartInfo(_link)
+        switch (e.Button)
         {
-            UseShellExecute = true,
-        });
+            case MouseButtons.Left:
+                if(string.IsNullOrWhiteSpace(_link)) break;
+                Process.Start(new ProcessStartInfo(_link) { UseShellExecute = true });
+                break;
+            case MouseButtons.Right:
+                Program.NotificationList.Show();
+                break;
+        }
+
+        EndNotification();
+    }
+
+    private void EndNotification()
+    {
         Hide();
         Hidden?.Invoke(this);
     }
 
-    public void Show(string head, string body, Form parent, string? link = null)
+    public void Show(string head, string body, string? link = null)
     {
         _label1.Text = head;
         _label2.Text = body;
         _link = link;
-        ShowDialog(parent);
+        Show();
         Invalidate();
         Program.PlayNotificationSound();
         Animate(_delay, _duration);
@@ -109,10 +120,8 @@ public class NotificationForm : Form
         _timer.Stop();
 
         _timer.Dispose();
-        Hide();
-        Hidden?.Invoke(this);
-        // Close();
-   }
+        EndNotification();
+    }
     
     
 }
