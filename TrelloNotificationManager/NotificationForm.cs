@@ -7,20 +7,18 @@ using SkiaSharp;
 using ContentAlignment = Modern.Forms.ContentAlignment;
 using Timer = System.Timers.Timer;
 
+namespace TrelloNotificationManager;
+
 public class NotificationForm : Form
 {
     protected override Size DefaultSize => new (300, 100);
     
     public Action<NotificationForm>? Hidden; 
 
-    private readonly Label _label1;
-    private readonly Label _label2;
-    private readonly Control _clickCheck;
     private readonly int _delay;
     private readonly int _duration;
     private readonly Point _startPosition;
-
-    private string? _link = "";
+    private readonly NotificationControl _panel;
     
     public NotificationForm(int yPos, int delay = 5000, int animationDuration = 1000)
     {
@@ -31,39 +29,11 @@ public class NotificationForm : Form
         Resizeable = false;
         // TitleBar.Size = new Size(0, 0);
         
-        var width = Size.Width - 10;
-        var heightA = Size.Height / 3;
-        _label1 = Controls.Add(new Label
+        _panel = Controls.Add(new NotificationControl(Size - new Size(2, 2))
         {
-            Location = new Point(5, 5),
-            Height = heightA - 5,
-            Width = width,
-            Multiline = true,
-            TextAlign = ContentAlignment.TopLeft,
-        });
-        _label2 = Controls.Add(new Label
-        {
-            Location = new Point(5, _label1.Height + 10),
-            Height = heightA * 2 - 10,
-            Width = width,
-            Multiline = true,
-            TextAlign = ContentAlignment.TopLeft,
-        });
-
-        _clickCheck = Controls.Add(new Control()
-        {
-            Width = Size.Width,
-            Height = Size.Height,
             Location = Point.Empty,
         });
-        _clickCheck.Style.BackgroundColor = SKColors.Transparent;
-        _clickCheck.Click += ClickCheckOnClick;
-        
-        // _label1.Style.BackgroundColor = SKColor.FromHsv(100, 100, 100);
-        // _label2.Style.BackgroundColor = SKColor.FromHsv(100, 100, 100);
-        
-        // var w = typeof(Form).GetField("window", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(this);
-        // w?.GetType().GetMethod("SetTopmost", BindingFlags.Instance | BindingFlags.Public)?.Invoke(w, new object[] { true });
+        _panel.Click += (_,_) => EndNotification();
         
         SetTopmost(true);
         ShowTaskbarIcon(false);
@@ -71,34 +41,16 @@ public class NotificationForm : Form
         _delay = delay;
         _duration = animationDuration;
     }
-
-    private void ClickCheckOnClick(object? sender, MouseEventArgs e)
-    {
-        switch (e.Button)
-        {
-            case MouseButtons.Left:
-                if(string.IsNullOrWhiteSpace(_link)) break;
-                Process.Start(new ProcessStartInfo(_link) { UseShellExecute = true });
-                break;
-            case MouseButtons.Right:
-                Program.NotificationList.Show();
-                break;
-        }
-
-        EndNotification();
-    }
-
+    
     private void EndNotification()
     {
         Hide();
         Hidden?.Invoke(this);
     }
 
-    public void Show(string head, string body, string? link = null)
+    public void Show(string head, string body, LinkData? link = null)
     {
-        _label1.Text = head;
-        _label2.Text = body;
-        _link = link;
+        _panel.UpdateText(head, body, link);
         Show();
         Invalidate();
         Program.PlayNotificationSound();

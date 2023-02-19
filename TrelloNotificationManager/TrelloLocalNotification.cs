@@ -2,15 +2,20 @@
 using Manatee.Trello;
 using Newtonsoft.Json;
 
+namespace TrelloNotificationManager;
+
 public class TrelloLocalNotification
 {
     private readonly IMe _member;
     private readonly string _creatorNameEndpoint;
     private readonly List<int> _shownUnreadNotifications = new ();
+    private readonly string processName;
 
-    public TrelloLocalNotification(IMe member, TrelloAuthorization auth)
+    public TrelloLocalNotification(IMe member, MemberData data)
     {
         _member = member;
+        var auth = data.Auth;
+        processName = data.Executable;
         _creatorNameEndpoint = $"https://api.trello.com/1/notifications/{{0}}/memberCreator/fullName?key={auth.AppKey}&token={auth.UserToken}";
     }
 
@@ -40,6 +45,7 @@ public class TrelloLocalNotification
 
     private async Task Print(INotification notification)
     {
+        // return;
         var data = notification.Data;
         var title = $"{_member.FullName} : {data?.Board?.Name}";
         Console.WriteLine(title);
@@ -55,7 +61,7 @@ public class TrelloLocalNotification
         
         //show notification
         var link = data?.GetLink();
-        Program.NotificationList.ShowNotification(title, body, link);
+        Program.NotificationList.ShowNotification(title, body, LinkData.New(link, processName));
         if(link is null) return;
         Console.WriteLine(link);
     }

@@ -43,13 +43,13 @@ internal sealed class Program
 		//Handle exit
 		Console.CancelKeyPress += (s, e) =>
 		{
-			Console.WriteLine("Closing...");
+			Console.WriteLine("Closing..");
 			_running = false;
 			Bass.StreamFree(_stream);
 			Bass.Free();
 		};
 		
-		var auths = JsonConvert.DeserializeObject<TrelloAuthorization[]>(File.ReadAllText(AuthFile));
+		var auths = JsonConvert.DeserializeObject<MemberData[]>(File.ReadAllText(AuthFile));
 		if(auths is null) return;
 		NotificationList = new NotificationListForm();
 		Task.Run(() => PrintNotifications(auths));
@@ -64,7 +64,10 @@ internal sealed class Program
 	private static void CreateAuthFile()
 	{
 		Console.WriteLine("No auth file found");
-		File.AppendAllText(AuthFile, JsonConvert.SerializeObject(new[] { new TrelloAuthorization() }, Formatting.Indented));
+		File.AppendAllText(AuthFile, JsonConvert.SerializeObject(new[] { new MemberData
+		{
+			Auth = new TrelloAuthorization()
+		} }, Formatting.Indented));
 		new Process
 		{
 			StartInfo = new ProcessStartInfo(AuthFile)
@@ -74,16 +77,16 @@ internal sealed class Program
 		}.Start();
 	}
 
-	private static async Task PrintNotifications(TrelloAuthorization[] auths)
+	private static async Task PrintNotifications(MemberData[] datas)
 	{
 		// TrelloAuthorization.Default.AppKey = auths[0].AppKey;
 		// TrelloAuthorization.Default.UserToken = auths[0].UserToken;
 		List<TrelloLocalNotification> members = new ();
-		foreach (var auth in auths)
+		foreach (var data in datas)
 		{
-			var m = await Trello.Me(auth);
+			var m = await Trello.Me(data.Auth);
 			if(m is null) continue;
-			members.Add(new TrelloLocalNotification(m, auth));
+			members.Add(new TrelloLocalNotification(m, data));
 			m.Notifications.ReadFilter(NotificationExtensions.UneadFilter.unread);
 			// var n = Trello.Notification(m.Notifications[0].Id, auth);
 		}
@@ -97,4 +100,11 @@ internal sealed class Program
 			Thread.Sleep(2000);
 		}
 	}
+}
+
+[Serializable]
+public struct MemberData
+{
+	public TrelloAuthorization Auth;
+	public string Executable;
 }
